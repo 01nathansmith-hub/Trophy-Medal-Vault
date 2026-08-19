@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trophy & Medal Vault</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { background: #0f172a; color: #f8fafc; font-family: system-ui, sans-serif; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div class="max-w-md w-full bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 p-6">
+        
+        <!-- HEADER -->
+        <div class="text-center mb-6">
+            <span class="text-5xl">🏆</span>
+            <h1 class="text-2xl font-bold mt-2 text-yellow-400" id="display-title">Trophy Vault</h1>
+            <p class="text-slate-400 text-sm" id="display-subtitle">Scanning Medal...</p>
+        </div>
+
+        <!-- VIEW MODE -->
+        <div id="view-section" class="hidden space-y-4">
+            
+            <!-- STATS GRID -->
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 text-center">
+                    <span class="text-slate-400 text-xs uppercase block">Primary Stat</span>
+                    <span class="text-lg font-bold text-amber-400" id="view-stat1">-</span>
+                </div>
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 text-center">
+                    <span class="text-slate-400 text-xs uppercase block">Secondary Stat</span>
+                    <span class="text-lg font-bold text-emerald-400" id="view-stat2">-</span>
+                </div>
+            </div>
+
+            <!-- DETAILS BLOCK -->
+            <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 space-y-2">
+                <div><span class="text-slate-400 text-xs">Date:</span> <span id="view-date" class="text-slate-200 font-medium"></span></div>
+                <div><span class="text-slate-400 text-xs">Location:</span> <span id="view-location" class="text-slate-200 font-medium"></span></div>
+            </div>
+
+            <!-- PHOTO DISPLAY -->
+            <div id="photo-container" class="hidden">
+                <img id="view-photo" class="w-full h-48 object-cover rounded-xl border border-slate-700" alt="Achievement Photo">
+            </div>
+
+            <!-- VIDEO EMBED -->
+            <div id="video-container" class="hidden">
+                <iframe id="view-video" class="w-full h-48 rounded-xl border border-slate-700" frameborder="0" allowfullscreen></iframe>
+            </div>
+
+            <!-- JOURNAL NOTES -->
+            <div id="notes-container" class="bg-slate-900 p-4 rounded-xl border border-slate-700 hidden">
+                <h3 class="text-xs uppercase text-slate-400 mb-1">Journal & Memories</h3>
+                <p id="view-notes" class="text-slate-300 text-sm italic"></p>
+            </div>
+
+            <!-- EDIT BUTTON -->
+            <button onclick="showEditForm()" class="w-full py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-xl font-medium transition text-sm">
+                ✏️ Edit Achievement
+            </button>
+        </div>
+
+        <!-- EDIT/CREATE FORM -->
+        <form id="edit-form" class="hidden space-y-3">
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Event Title *</label>
+                <input type="text" id="input-title" required placeholder="e.g. London Marathon 2026" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-yellow-400">
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Date</label>
+                    <input type="date" id="input-date" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-yellow-400">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Location</label>
+                    <input type="text" id="input-location" placeholder="e.g. London, UK" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-yellow-400">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Stat #1</label>
+                    <input type="text" id="input-stat1" placeholder="Time: 3h 42m" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-yellow-400">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Stat #2</label>
+                    <input type="text" id="input-stat2" placeholder="Place: 142nd" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-yellow-400">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Photo URL</label>
+                <input type="url" id="input-photo" placeholder="https://imgur.com/example.jpg" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-yellow-400">
+            </div>
+
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">YouTube / Video Embed URL</label>
+                <input type="url" id="input-video" placeholder="https://www.youtube.com/embed/..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-yellow-400">
+            </div>
+
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Journal Notes / Story</label>
+                <textarea id="input-notes" rows="3" placeholder="Write memories here..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-yellow-400"></textarea>
+            </div>
+
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Set 4-Digit PIN (Optional)</label>
+                <input type="password" id="input-pin" maxlength="4" placeholder="1234" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-yellow-400">
+            </div>
+
+            <button type="submit" class="w-full py-3 bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-bold rounded-xl transition mt-2">
+                💾 Save Achievement
+            </button>
+        </form>
+
+    </div>
+
+    <script>
+        // --- SUPABASE CONFIGURATION ---
+        const SUPABASE_URL = "YOUR_SUPABASE_URL";
+        const SUPABASE_KEY = "YOUR_SUPABASE_ANON_KEY";
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Parse Tag ID from URL (?id=medal_001)
+        const urlParams = new URLSearchParams(window.location.search);
+        const tagId = urlParams.get('id') || 'medal_demo';
+
+        let currentData = null;
+
+        // Load Achievement Data
+        async function loadData() {
+            document.getElementById('display-subtitle').innerText = `Tag ID: ${tagId}`;
+
+            const { data, error } = await supabase
+                .from('achievements')
+                .select('*')
+                .eq('id', tagId)
+                .single();
+
+            if (data) {
+                currentData = data;
+                renderView(data);
+            } else {
+                // Not created yet -> show edit/create form
+                showEditForm();
+            }
+        }
+
+        function renderView(data) {
+            document.getElementById('display-title').innerText = data.title || "Trophy Vault";
+            document.getElementById('view-stat1').innerText = data.stat_primary || "N/A";
+            document.getElementById('view-stat2').innerText = data.stat_secondary || "N/A";
+            document.getElementById('view-date').innerText = data.event_date || "N/A";
+            document.getElementById('view-location').innerText = data.location || "N/A";
+
+            if (data.photo_url) {
+                document.getElementById('view-photo').src = data.photo_url;
+                document.getElementById('photo-container').classList.remove('hidden');
+            }
+
+            if (data.video_url) {
+                document.getElementById('view-video').src = data.video_url;
+                document.getElementById('video-container').classList.remove('hidden');
+            }
+
+            if (data.journal_notes) {
+                document.getElementById('view-notes').innerText = data.journal_notes;
+                document.getElementById('notes-container').classList.remove('hidden');
+            }
+
+            document.getElementById('view-section').classList.remove('hidden');
+            document.getElementById('edit-form').classList.add('hidden');
+        }
+
+        function showEditForm() {
+            if (currentData && currentData.pin) {
+                const userPin = prompt("Enter PIN to edit this trophy:");
+                if (userPin !== currentData.pin) {
+                    alert("Incorrect PIN!");
+                    return;
+                }
+            }
+
+            if (currentData) {
+                document.getElementById('input-title').value = currentData.title || '';
+                document.getElementById('input-date').value = currentData.event_date || '';
+                document.getElementById('input-location').value = currentData.location || '';
+                document.getElementById('input-stat1').value = currentData.stat_primary || '';
+                document.getElementById('input-stat2').value = currentData.stat_secondary || '';
+                document.getElementById('input-photo').value = currentData.photo_url || '';
+                document.getElementById('input-video').value = currentData.video_url || '';
+                document.getElementById('input-notes').value = currentData.journal_notes || '';
+                document.getElementById('input-pin').value = currentData.pin || '';
+            }
+
+            document.getElementById('view-section').classList.add('hidden');
+            document.getElementById('edit-form').classList.remove('hidden');
+        }
+
+        // Save Form Handler
+        document.getElementById('edit-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const payload = {
+                id: tagId,
+                title: document.getElementById('input-title').value,
+                event_date: document.getElementById('input-date').value || null,
+                location: document.getElementById('input-location').value,
+                stat_primary: document.getElementById('input-stat1').value,
+                stat_secondary: document.getElementById('input-stat2').value,
+                photo_url: document.getElementById('input-photo').value,
+                video_url: document.getElementById('input-video').value,
+                journal_notes: document.getElementById('input-notes').value,
+                pin: document.getElementById('input-pin').value
+            };
+
+            const { error } = await supabase.from('achievements').upsert(payload);
+
+            if (error) {
+                alert("Error saving trophy data: " + error.message);
+            } else {
+                alert("Trophy saved successfully!");
+                location.reload();
+            }
+        });
+
+        loadData();
+    </script>
+</body>
+</html>
