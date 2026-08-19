@@ -122,17 +122,19 @@
 
     </div>
 
-    <script>
-        // --- SUPABASE CONFIGURATION ---
-        const SUPABASE_URL = "YOUR_SUPABASE_URL";
-        const SUPABASE_KEY = "YOUR_SUPABASE_ANON_KEY";
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  <script>
+    // --- SUPABASE CONFIGURATION ---
+    const SUPABASE_URL = "https://tarbuhmvwbspidehaato.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_Fbbz0A7NMK6cbsmL-BFgTQ_5c_r2uVu";
 
-        // Parse Tag ID from URL (?id=medal_001)
-        const urlParams = new URLSearchParams(window.location.search);
-        const tagId = urlParams.get('id') || 'medal_demo';
+    const { createClient } = window.supabase;
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        let currentData = null;
+    // Parse Tag ID from URL (?id=medal_001)
+    const urlParams = new URLSearchParams(window.location.search);
+    const tagId = urlParams.get('id') || 'medal_demo';
+
+    let currentData = null;
 
         // Load Achievement Data
         async function loadData() {
