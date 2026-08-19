@@ -25,7 +25,6 @@
 
         <!-- VIEW MODE -->
         <div id="view-section" class="hidden space-y-4">
-            
             <!-- STATS GRID -->
             <div class="grid grid-cols-2 gap-3">
                 <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 text-center">
@@ -122,35 +121,39 @@
 
     </div>
 
-  <script>
-    // --- SUPABASE CONFIGURATION ---
-    const SUPABASE_URL = "https://tarbuhmvwbspidehaato.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_Fbbz0A7NMK6cbsmL-BFgTQ_5c_r2uVu";
+    <script>
+        // --- SUPABASE CONFIGURATION ---
+        const SUPABASE_URL = "https://tarbuhmvwbspidehaato.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_Fbbz0A7NMK6cbsmL-BFgTQ_5c_r2uVu";
 
-    const { createClient } = window.supabase;
-    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+        const { createClient } = window.supabase;
+        const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // Parse Tag ID from URL (?id=medal_001)
-    const urlParams = new URLSearchParams(window.location.search);
-    const tagId = urlParams.get('id') || 'medal_demo';
+        // Parse Tag ID from URL (?id=medal_001)
+        const urlParams = new URLSearchParams(window.location.search);
+        const tagId = urlParams.get('id') || 'medal_demo';
 
-    let currentData = null;
+        let currentData = null;
 
         // Load Achievement Data
         async function loadData() {
             document.getElementById('display-subtitle').innerText = `Tag ID: ${tagId}`;
 
-            const { data, error } = await supabase
-                .from('achievements')
-                .select('*')
-                .eq('id', tagId)
-                .single();
+            try {
+                const { data, error } = await db
+                    .from('achievements')
+                    .select('*')
+                    .eq('id', tagId)
+                    .maybeSingle();
 
-            if (data) {
-                currentData = data;
-                renderView(data);
-            } else {
-                // Not created yet -> show edit/create form
+                if (data) {
+                    currentData = data;
+                    renderView(data);
+                } else {
+                    showEditForm();
+                }
+            } catch (err) {
+                console.error("Error fetching data:", err);
                 showEditForm();
             }
         }
@@ -223,7 +226,7 @@
                 pin: document.getElementById('input-pin').value
             };
 
-            const { error } = await supabase.from('achievements').upsert(payload);
+            const { error } = await db.from('achievements').upsert(payload);
 
             if (error) {
                 alert("Error saving trophy data: " + error.message);
